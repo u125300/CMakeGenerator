@@ -4,6 +4,8 @@
 #define BOOST_NO_CXX11_SCOPED_ENUMS
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
+#include <fstream>
+
 #undef BOOST_NO_CXX11_SCOPED_ENUMS
 
 using namespace std;
@@ -71,6 +73,32 @@ void sort(string pth)
     }
 }
 
+void createFile(string pth, string project)
+{
+   if(pth.back() != '/')
+   {
+       pth += '/';
+   }
+
+    ofstream outfile (pth + "CMakeLists.txt.gen");
+    outfile << "cmake_minimum_required(VERSION 3.7)" << endl;
+    outfile << "project(" + project + ")" << endl;
+
+    for(string dir : dirs)
+    {
+        outfile << "include_directories(" << dir << ")" << endl;
+    }
+
+    outfile << "add_executable(" << project;
+    for(string file : executable)
+    {
+        outfile << " " << file;
+    }
+
+    outfile << ")";
+    outfile.close();
+}
+
 int main(int argc, char *argv[]) {
     if(argc < 2)
     {
@@ -83,6 +111,8 @@ int main(int argc, char *argv[]) {
 
     vector<string> projectList = split(argv[1], "/");
     string project = (basic_string<char, char_traits<char>, allocator<char>> &&) projectList.at(projectList.size() - 1);
+
+    createFile(argv[1], project);
 
     cout << "cmake_minimum_required(VERSION 3.7)" << endl;
     cout << "project(" + project + ")" << endl;
